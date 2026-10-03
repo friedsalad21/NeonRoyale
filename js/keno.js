@@ -8,7 +8,7 @@
   };
 
   Casino.games.push({
-    id: 'keno', name: 'Keno', tag: 'Lottery · 100,000:1', icon: '🎱', accent: '#eab308',
+    id: 'keno', section: 'Arcade & Lottery', name: 'Keno', tag: 'Lottery · 100,000:1', icon: '🎱', accent: '#eab308',
     blurb: 'Pick up to 10 numbers. 20 balls are drawn. Catch them all for 100,000×.',
     rules: `<ul>
       <li>Pick 1 to 10 numbers from 1–80 (or hit Quick Pick).</li>

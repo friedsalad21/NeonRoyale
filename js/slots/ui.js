@@ -348,14 +348,14 @@
       gambleBtn.hidden = true;
       if (!amount) return;
       let stake = amount, rounds = 0;
-      const o = overlay(`<h2>Gamble</h2><p>Guess the colour to double <b class="gstake"></b></p><div class="gcard">?</div>
+      const o = overlay(`<h2>Gamble</h2><p>Guess the colour to double <b class="gstake"></b></p><div class="gmb-card">?</div>
         <div class="btns" style="justify-content:center"><button class="btn red gr">Red</button><button class="btn gb" style="background:#111;color:#fff">Black</button><button class="btn ghost gc">Collect</button></div><div class="ghist"></div>`);
-      const card = $('.gcard', o), upd = () => $('.gstake', o).textContent = fmt(stake);
+      const card = $('.gmb-card', o), upd = () => $('.gstake', o).textContent = fmt(stake);
       upd();
       const guess = red => {
         if (!Casino.take(stake)) return;
         const s = SUITS[rnd(4)], isRed = s === '♥' || s === '♦';
-        card.textContent = s + '︎'; card.className = 'gcard ' + (isRed ? 'red' : 'black');
+        card.textContent = s + '︎'; card.className = 'gmb-card ' + (isRed ? 'red' : 'black');
         $('.ghist', o).insertAdjacentHTML('afterbegin', `<span class="${isRed ? 'red' : ''}">${s}︎</span>`);
         if (isRed === red) { stake = round2(stake * 2); Casino.pay(stake); rounds++; sfx.win(); upd(); if (rounds >= 5) setTimeout(() => o.remove(), 900); }
         else { sfx.lose(); $('.gstake', o).textContent = '$0'; setTimeout(() => o.remove(), 900); $$('.btns .btn', o).forEach(b => b.disabled = true); }
@@ -454,7 +454,7 @@
 
   // ---------- hall ----------
   Casino.games.push({
-    id: 'slots', name: 'Slot Hall', tag: `Slots · ${E.MACHINES.length} machines`, icon: '🎰', accent: '#ec4899',
+    id: 'slots', section: 'Slots', name: 'Slot Hall', tag: `Slots · ${E.MACHINES.length} machines`, icon: '🎰', accent: '#ec4899',
     blurb: `${E.MACHINES.length} machines: classics, Megaways, clusters, Hold & Win, bonus wheels and more.`,
     rules: `<ul><li>Every machine is a different type of slot with its own features. Open one and press <b>Paytable</b> for its rules.</li><li>Every machine is tuned to return about 95% over the long run, like a real Vegas floor.</li><li>Space spins on any machine. Turbo speeds up the animations, and Auto spins until you stop it.</li></ul>`,
     mount({ table }) {

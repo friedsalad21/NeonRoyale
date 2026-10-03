@@ -22,7 +22,7 @@
   }
 
   Casino.games.push({
-    id: 'bigsix', name: 'Big Six Wheel', tag: 'Wheel · 40:1', accent: '#06b6d4', art: () => wheel(264),
+    id: 'bigsix', section: 'Game Shows', name: 'Big Six Wheel', tag: 'Wheel · 40:1', accent: '#06b6d4', art: () => wheel(264),
     blurb: 'Spin the money wheel. Land the Joker or the Star for 40 to 1.',
     rules: `<ul>
       <li>The wheel has 54 stops: 24 × $1, 15 × $2, 7 × $5, 4 × $10, 2 × $20, 1 Joker and 1 Star.</li>

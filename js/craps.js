@@ -7,7 +7,7 @@
   const NAMES = { 4: 'FOUR', 5: 'FIVE', 6: 'SIX', 8: 'EIGHT', 9: 'NINE', 10: 'TEN' };
 
   Casino.games.push({
-    id: 'craps', name: 'Craps', tag: 'Dice · Hot table', icon: '🎲', accent: '#f97316',
+    id: 'craps', section: 'Dice', name: 'Craps', tag: 'Dice · Hot table', icon: '🎲', accent: '#f97316',
     blurb: 'Roll the bones. Pass line, odds, place bets, the field and props.',
     rules: `<ul>
       <li><b>Pass Line</b> (come-out roll only): 7 or 11 wins, 2, 3 or 12 loses. Any other number becomes the point. Roll the point again before a 7 to win 1:1.</li>

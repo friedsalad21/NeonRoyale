@@ -42,6 +42,7 @@ const sfx = {
 
 // ---------- wallet ----------
 const START = 1000;
+const SECTIONS = ['Slots', 'Originals', 'Table Games', 'Poker', 'Dice', 'Game Shows', 'Arcade & Lottery'];
 const Casino = {
   games: [],
   hotkey: null,
@@ -230,10 +231,9 @@ function home(view) {
       <h1 class="title">NEON <em>ROYALE</em></h1>
       <p class="sub">Casino · Las Vegas · Open 24/7</p>
       <div class="jackpot"><span>Progressive Jackpot</span><b class="jp"></b></div>
-      <div class="perks"><span>🎁 Free chips at the Cashier</span><span>🎰 Jackpot grows with every spin</span><span>🃏 ${Casino.games.filter(g => !g.hall).length - 1} table games + ${SlotEngine.MACHINES.length} slots</span></div>
+      <div class="perks"><span>🎁 Free chips at the Cashier</span><span>🎰 Jackpot grows with every spin</span><span>🃏 ${Casino.games.filter(g => !g.hall).length - 1} games + ${SlotEngine.MACHINES.length} slots</span></div>
     </div>
-    <h2 class="section">Choose your game</h2>
-    <div class="grid"></div>
+    <div class="sections"></div>
   </section>`);
   // marquee bulbs around the frame, alternating odd/even blink
   const bulbs = $('.bulbs', el), N = 24, M = 7, pts = [];
@@ -243,11 +243,17 @@ function home(view) {
   for (let i = 0; i < M; i++) pts.push([0, 100 - i / M * 100]);
   for (const [x, y] of pts) { const b = h('<i class="bulb"></i>'); b.style.left = x + '%'; b.style.top = y + '%'; bulbs.append(b); }
 
-  const grid = $('.grid', el);
-  for (const g of Casino.games.filter(g => !g.hall)) {
+  const games = Casino.games.filter(g => !g.hall), secs = $('.sections', el);
+  for (const sec of SECTIONS) {
+    const list = games.filter(g => (g.section || 'Table Games') === sec);
+    if (!list.length) continue;
+    secs.append(h(`<h2 class="section">${sec}</h2>`));
+    const grid = h('<div class="grid"></div>'); secs.append(grid);
+    for (const g of list) {
     const c = h(`<a class="gcard" href="#${g.id}" style="--a:${g.accent}"><span class="tag">${g.tag}</span><div class="art"></div><span class="play">Play</span><div class="info"><h3>${g.name}</h3><p>${g.blurb}</p></div></a>`);
     const art = $('.art', c); g.art ? art.append(g.art()) : art.append(h(`<span>${g.icon}</span>`));
     grid.append(c);
+    }
   }
   view.append(el);
   const jp = $('.jp', el), tick = () => { Jackpot.add(Math.random() * .9); jp.textContent = fmt2(Jackpot.v); };
@@ -291,3 +297,17 @@ Casino.start = () => {
   addEventListener('pagehide', () => cleanup?.());
   route();
 };
+
+// Bet-amount box used by the "originals" games: typed amount with ½ and 2× buttons, remembered per game.
+function betBox(key, def = 10) {
+  const el = h('<div class="betbox"><small>BET</small><button class="btn ghost small">½</button><input type="number" min="1" max="10000" step="1" inputmode="decimal" aria-label="Bet amount"><button class="btn ghost small">2×</button></div>');
+  const inp = $('input', el); let v;
+  const set = n => { v = Math.max(1, Math.min(10000, round2(+n || 1))); inp.value = v; store.set(key, v); };
+  set(store.get(key, def));
+  $$('.btn', el)[0].onclick = () => set(v / 2); $$('.btn', el)[1].onclick = () => set(v * 2); inp.onchange = () => set(inp.value);
+  return { el, get: () => v, lock(b) { el.querySelectorAll('button,input').forEach(x => x.disabled = b); } };
+}
+// Row of recent results shown as coloured pills.
+function pillRow(el, max = 14) {
+  return (text, good) => { el.insertAdjacentHTML('afterbegin', `<span class="pill ${good ? 'good' : 'bad'}">${text}</span>`); while (el.children.length > max) el.lastChild.remove(); };
+}

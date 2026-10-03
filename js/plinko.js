@@ -9,7 +9,7 @@
   const pocketColor = (k, n) => { const t = Math.abs(k - n / 2) / (n / 2); return `hsl(${48 - t * 48},95%,${55 - t * 8}%)`; };
 
   Casino.games.push({
-    id: 'plinko', name: 'Plinko', tag: 'Drop · 1000×', icon: '🔻', accent: '#f43f5e',
+    id: 'plinko', section: 'Originals', name: 'Plinko', tag: 'Drop · 1000×', icon: '🔻', accent: '#f43f5e',
     blurb: 'Drop balls through the pins. Pick your risk and chase the 1000× edge pockets.',
     rules: `<ul>
       <li>Each ball costs one chip of the selected value. It bounces left or right off every row of pins and lands in a pocket that multiplies its bet.</li>
