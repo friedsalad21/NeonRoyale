@@ -280,11 +280,10 @@
     // jackpot header
     const jp = $('.cab-jp', table);
     const showJp = () => {
-      if (m.progressive != null) jp.innerHTML = `<div class="jackpot mini"><span>Progressive</span><b>${fmt2(Jackpot.v)}</b></div>`;
-      else if (m.jackpots) jp.innerHTML = Object.entries(m.jackpots).map(([n, v]) => `<div class="jpill"><small>${n}</small><b>${fmt(round2(v * m.k * BETS[bi]))}</b></div>`).join('');
+      if (m.jackpots) jp.innerHTML = Object.entries(m.jackpots).map(([n, v]) => `<div class="jpill"><small>${n}</small><b>${fmt(round2(v * m.k * BETS[bi]))}</b></div>`).join('');
     };
     showJp();
-    const jpTimer = m.progressive != null ? setInterval(() => { Jackpot.add(Math.random() * .4); showJp(); }, 150) : null;
+    $('.cab-head', table).after(jackpotMeters('slim'));
 
     const showBet = () => {
       $('.bet', table).textContent = fmt(BETS[bi]); store.set(key + '_bet', BETS[bi]); showJp();
@@ -317,18 +316,21 @@
       if (!Casino.take(cost)) { ui.auto = false; return null; }
       spinning = true; spinBtn.disabled = true; if (buyBtn) buyBtn.disabled = true; if (gambleBtn) gambleBtn.hidden = true;
       ui.spinWin = 0; $('.win', table).textContent = '$0'; ui.status(buy ? 'Bonus bought. Good luck!' : 'Good luck!');
-      if (m.progressive != null) Jackpot.add(bet * .02);
       const ctx = { bet, maxBet: BETS.at(-1), st, buy, holds: ui.holds };
       ui.disableHolds?.();
       let units = 0;
       try { units = await E.play(m, board, ctx); } catch (e) { console.error(e); }
       ui.holds = [false, false, false];
       let paid = round2(units * bet);
-      if (ctx.jackpot) { paid += Jackpot.v; Jackpot.reset(); banner('PROGRESSIVE JACKPOT', fmt(paid)); coinShower(150); }
+      // every real spin (not a bought bonus) feeds the shared jackpots and may win one
+      const jw = buy ? [] : Jackpots.spin(bet);
+      if (ctx.jackpot) jw.push(Jackpots.claimGrand());
       Casino.pay(paid);
+      for (const w of jw) { Casino.pay(w.amount); paid = round2(paid + w.amount); }
       $('.win', table).textContent = fmt(paid);
       const x = paid / bet;
-      if (!ctx.jackpot && x >= 15) { banner(x >= 100 ? 'EPIC WIN' : x >= 50 ? 'MEGA WIN' : 'BIG WIN', fmt(paid)); sfx.big(); coinShower(x >= 100 ? 120 : x >= 50 ? 70 : 35); }
+      if (jw.length) { const w = jw.at(-1); banner(`${w.t.name} JACKPOT`, fmt(w.amount)); sfx.big(); coinShower(w.t.k === 'grand' ? 200 : 90); ui.status(`${jw.map(w => w.t.name).join(' + ')} JACKPOT! ${fmt(paid)}`, true); }
+      else if (x >= 15) { banner(x >= 100 ? 'EPIC WIN' : x >= 50 ? 'MEGA WIN' : 'BIG WIN', fmt(paid)); sfx.big(); coinShower(x >= 100 ? 120 : x >= 50 ? 70 : 35); }
       else if (paid > 0) { sfx.win(); if (!buy) ui.status(`WIN ${fmt(paid)}`, true); }
       else if (m.holdwin && board.g) {
         const n = board.g.flat().filter(s => m.syms[s].coin).length;
@@ -431,7 +433,7 @@
     const onResize = () => { if (board.g && !spinning) board.render(board.g, board.v); };
     addEventListener('resize', onResize);
     Casino.hotkey = () => spin(false);
-    return () => { alive = false; ui.auto = false; clearInterval(jpTimer); removeEventListener('resize', onResize); };
+    return () => { alive = false; ui.auto = false; removeEventListener('resize', onResize); };
   }
 
   // ---------- paytable ----------
@@ -456,7 +458,7 @@
   Casino.games.push({
     id: 'slots', section: 'Slots', name: 'Slot Hall', tag: `Slots · ${E.MACHINES.length} machines`, icon: '🎰', accent: '#ec4899',
     blurb: `${E.MACHINES.length} machines: classics, Megaways, clusters, Hold & Win, bonus wheels and more.`,
-    rules: `<ul><li>Every machine is a different type of slot with its own features. Open one and press <b>Paytable</b> for its rules.</li><li>Every machine is tuned to return about 95% over the long run, like a real Vegas floor.</li><li>Space spins on any machine. Turbo speeds up the animations, and Auto spins until you stop it.</li></ul>`,
+    rules: `<ul><li>Every machine is a different type of slot with its own features. Open one and press <b>Paytable</b> for its rules.</li><li>Every machine returns about 95% over the long run, like a real Vegas floor: about 91% from the reels plus 4% that feeds the shared MINI, MINOR, MAJOR and GRAND jackpots.</li><li>Space spins on any machine. Turbo speeds up the animations, and Auto spins until you stop it.</li></ul>`,
     mount({ table }) {
       table.innerHTML = `<div class="hall"><div class="hall-filters">${CATS.map(c => `<button class="btn ghost small${c === 'All' ? ' on' : ''}">${c}</button>`).join('')}</div><div class="hall-grid"></div></div>`;
       const grid = $('.hall-grid', table);
@@ -472,5 +474,7 @@
       show('All');
     },
   });
+  // 4% of every slot bet feeds the shared jackpots, so line wins are scaled down by the same amount
+  for (const m of E.MACHINES) m.k = +(m.k * (1 - Jackpots.SHARE)).toFixed(4);
   for (const m of E.MACHINES) Casino.games.push({ id: m.id, hall: true, back: 'slots', name: m.name, rules: rulesHTML(m), mount: s => mountMachine(m, s) });
 })();

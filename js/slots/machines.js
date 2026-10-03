@@ -18,8 +18,8 @@
   const BAR = n => `<i class="bars">${'<b>BAR</b>'.repeat(n)}</i>`;
 
   M.push({
-    id: 'lucky7', k: 1, name: 'Lucky 7s Deluxe', cat: 'Video', tag: '10 lines · Progressive', art: '7️⃣💎⭐',
-    blurb: 'The original. Wild stars, 10 lines and the progressive jackpot.',
+    id: 'lucky7', k: 1, name: 'Lucky 7s Deluxe', cat: 'Video', tag: '10 lines · GRAND jackpot', art: '7️⃣💎⭐',
+    blurb: 'The original. Wild stars, 10 lines, and five 7s at max bet win the GRAND.',
     theme: { bg: 'linear-gradient(#6a1238,#2a0716)', frame: '#f7c948', acc: '#ff2e88', font: 'Limelight', cell: 'linear-gradient(#bbb,#fff 18%,#fff 82%,#bbb)' },
     cols: 5, rows: 3, eval: 'lines', lines: L10, div: 10, progressive: '7',
     syms: [
@@ -28,7 +28,7 @@
       { s: '💎', w: 5, pay: P5(75, 300, 1500) }, { s: '7', cls: 'seven', w: 3, pay: P5(150, 750, 5000) },
       { s: '⭐', w: 3, wild: true, pay: P5(200, 1000, 5000) },
     ],
-    rules: ['⭐ is wild and substitutes for everything.', 'Five 7s on a line at the maximum bet wins the <b>progressive jackpot</b>.', '2% of every spin feeds the jackpot.'],
+    rules: ['⭐ is wild and substitutes for everything.', 'Five 7s on a line at the maximum bet (,000) wins the shared <b>GRAND jackpot</b>.', 'Like every slot, each spin also feeds the MINI, MINOR, MAJOR and GRAND jackpots and can win them.'],
   });
 
   M.push({

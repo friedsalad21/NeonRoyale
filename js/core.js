@@ -42,7 +42,8 @@ const sfx = {
 
 // ---------- wallet ----------
 const START = 1000;
-const SECTIONS = ['Slots', 'Originals', 'Table Games', 'Poker', 'Dice', 'Game Shows', 'Arcade & Lottery'];
+// lobby categories: [url slug, section name, icon]
+const CATS = [['slots', 'Slots', '🎰'], ['originals', 'Originals', '🚀'], ['table', 'Table Games', '🃏'], ['poker', 'Poker', '♠️'], ['dice', 'Dice', '🎲'], ['shows', 'Game Shows', '🎡'], ['arcade', 'Arcade & Lottery', '🎟️']];
 const Casino = {
   games: [],
   hotkey: null,
@@ -61,13 +62,6 @@ const Casino = {
   pay(n) { if (n > 0) { this.setBal(this.bal + n); Stats.win(n); } },
   // money handed back before it was played (chips taken off the table, cancelled bets): not a wager, not a win
   refund(n) { if (n > 0) { this.setBal(this.bal + n); Stats.unbet(n); } },
-};
-
-const JP_SEED = 250000;
-const Jackpot = {
-  get v() { return store.get('jp', JP_SEED); },
-  add(n) { store.set('jp', round2(this.v + n)); },
-  reset() { store.set('jp', JP_SEED); },
 };
 
 // ---------- feedback ----------
@@ -226,41 +220,74 @@ function spinner(el, n) {
 async function ticker(ms) { let t = 0, d = 35; while (t < ms - 150) { sfx.tick(); await sleep(d); t += d; d *= 1.06; } }
 
 // ---------- lobby ----------
-function home(view) {
-  const el = h(`<section class="home">
-    <div class="marquee"><div class="bulbs"></div>
-      <p class="welcome">Welcome to fabulous</p>
-      <h1 class="title">NEON <em>ROYALE</em></h1>
-      <p class="sub">Casino · Las Vegas · Open 24/7</p>
-      <div class="jackpot"><span>Progressive Jackpot</span><b class="jp"></b></div>
-      <div class="perks"><span>🎁 Free chips at the Cashier</span><span>🎰 Jackpot grows with every spin</span><span>🃏 ${Casino.games.filter(g => !g.hall).length - 1} games + ${SlotEngine.MACHINES.length} slots</span></div>
+const lobbyGames = () => Casino.games.filter(g => !g.hall && g.id !== 'slots');
+const catOf = g => CATS.find(c => c[1] === (g.section || 'Table Games'));
+function gameCard(g) {
+  const c = h(`<a class="gcard" href="#${g.id}" style="--a:${g.accent}"><span class="tag">${g.tag}</span><div class="art"></div><span class="play">Play</span><div class="info"><h3>${g.name}</h3><p>${g.blurb}</p></div></a>`);
+  const art = $('.art', c); g.art ? art.append(g.art()) : art.append(h(`<span>${g.icon}</span>`));
+  return c;
+}
+function machineCard(m) {
+  const art = [...new Intl.Segmenter().segment(m.art)].map(s => `<span>${s.segment === '7' ? '<i class="seven">7</i>' : s.segment}</span>`).join('');
+  return h(`<a class="mcard" href="#${m.id}" style="--bg:${m.theme.bg};--frame:${m.theme.frame};--acc:${m.theme.acc};--cell:${m.theme.cell};--mf:'${m.theme.font}',Oswald,sans-serif"><div class="mart">${art}</div><h3>${m.name}</h3><div class="mtag">${m.cat} · ${m.tag}</div><p>${m.blurb}</p></a>`);
+}
+const cardFor = id => { const m = SlotEngine.MACHINES.find(x => x.id === id); if (m) return machineCard(m); const g = Casino.games.find(x => x.id === id); return g && !g.hall && g.id !== 'slots' ? gameCard(g) : null; };
+function home(view, slug = '') {
+  const cat = CATS.find(c => c[0] === slug), games = lobbyGames();
+  const count = c => c[0] === 'slots' ? SlotEngine.MACHINES.length : games.filter(g => catOf(g) === c).length;
+  const el = h(`<section class="lobby">
+    <aside class="lb-side">
+      <input type="search" class="lb-search" placeholder="🔍 Search games" aria-label="Search games">
+      <nav>
+        <a href="#" class="${cat ? '' : 'on'}"><i>🏠</i><span>Lobby</span></a>
+        ${CATS.map(c => `<a href="#c/${c[0]}" class="${cat === c ? 'on' : ''}"><i>${c[2]}</i><span>${c[1]}</span><b>${count(c)}</b></a>`).join('')}
+        <a href="#stats" class="lb-sep"><i>📊</i><span>Statistics</span></a>
+        <a href="#" class="lb-cash"><i>🎁</i><span>Free chips</span></a>
+      </nav>
+    </aside>
+    <div class="lb-main">
+      <div class="lb-hero ${cat ? 'small' : ''}">${cat ? `<h1 class="lb-title">${cat[2]} ${cat[1]}</h1>` : '<p class="welcome">Welcome to fabulous</p><h1 class="title">NEON <em>ROYALE</em></h1>'}</div>
+      <div class="lb-content"></div>
     </div>
-    <div class="sections"></div>
   </section>`);
-  // marquee bulbs around the frame, alternating odd/even blink
-  const bulbs = $('.bulbs', el), N = 24, M = 7, pts = [];
-  for (let i = 0; i < N; i++) pts.push([i / N * 100, 0]);
-  for (let i = 0; i < M; i++) pts.push([100, i / M * 100]);
-  for (let i = 0; i < N; i++) pts.push([100 - i / N * 100, 100]);
-  for (let i = 0; i < M; i++) pts.push([0, 100 - i / M * 100]);
-  for (const [x, y] of pts) { const b = h('<i class="bulb"></i>'); b.style.left = x + '%'; b.style.top = y + '%'; bulbs.append(b); }
-
-  const games = Casino.games.filter(g => !g.hall), secs = $('.sections', el);
-  for (const sec of SECTIONS) {
-    const list = games.filter(g => (g.section || 'Table Games') === sec);
-    if (!list.length) continue;
-    secs.append(h(`<h2 class="section">${sec}</h2>`));
-    const grid = h('<div class="grid"></div>'); secs.append(grid);
-    for (const g of list) {
-    const c = h(`<a class="gcard" href="#${g.id}" style="--a:${g.accent}"><span class="tag">${g.tag}</span><div class="art"></div><span class="play">Play</span><div class="info"><h3>${g.name}</h3><p>${g.blurb}</p></div></a>`);
-    const art = $('.art', c); g.art ? art.append(g.art()) : art.append(h(`<span>${g.icon}</span>`));
-    grid.append(c);
-    }
+  $('.lb-hero', el).append(jackpotMeters(cat ? 'slim' : 'hero'));
+  if (!cat) { // marquee bulbs around the hero, alternating odd/even blink
+    const bulbs = h('<div class="bulbs"></div>'), N = 24, M = 6, pts = [];
+    for (let i = 0; i < N; i++) pts.push([i / N * 100, 0], [100 - i / N * 100, 100]);
+    for (let i = 0; i < M; i++) pts.push([100, i / M * 100], [0, 100 - i / M * 100]);
+    for (const [x, y] of pts) { const b = h('<i class="bulb"></i>'); b.style.left = x + '%'; b.style.top = y + '%'; bulbs.append(b); }
+    $('.lb-hero', el).prepend(bulbs);
   }
+  $('.lb-cash', el).onclick = e => { e.preventDefault(); cashier(); };
+  const content = $('.lb-content', el);
+  const row = (title, link, cards) => {
+    const sec = h(`<div class="lb-sec"><div class="lb-sh"><h2>${title}</h2>${link ? `<a href="${link}">See all →</a>` : ''}</div><div class="lb-row"></div></div>`);
+    $('.lb-row', sec).append(...cards); return sec;
+  };
+  const grid = cards => { const g = h('<div class="grid"></div>'); g.append(...cards); return g; };
+  function show() {
+    content.innerHTML = '';
+    if (!cat) {
+      const fav = Object.entries(Stats.data.games).filter(([id, v]) => v.visits && cardFor(id)).sort((a, b) => b[1].visits - a[1].visits).slice(0, 8);
+      if (fav.length) content.append(row('⭐ Your favourites', '', fav.map(([id]) => cardFor(id))));
+      for (const c of CATS) {
+        const cards = c[0] === 'slots' ? SlotEngine.MACHINES.slice(0, 10).map(machineCard) : games.filter(g => catOf(g) === c).map(gameCard);
+        if (cards.length) content.append(row(`${c[2]} ${c[1]} <small>${count(c)}</small>`, `#c/${c[0]}`, cards));
+      }
+    } else if (cat[0] === 'slots') Casino.games.find(g => g.id === 'slots').mount({ table: content });
+    else content.append(grid(games.filter(g => catOf(g) === cat).map(gameCard)));
+  }
+  const search = $('.lb-search', el);
+  search.oninput = () => {
+    const q = search.value.trim().toLowerCase();
+    if (!q) return show();
+    const hit = x => (x.name + ' ' + (x.blurb || '') + ' ' + (x.tag || '')).toLowerCase().includes(q);
+    const cards = [...SlotEngine.MACHINES.filter(hit).map(machineCard), ...games.filter(hit).map(gameCard)];
+    content.innerHTML = ''; content.append(cards.length ? grid(cards) : h(`<p class="muted lb-none">No games match “${search.value}”.</p>`));
+  };
+  show();
   view.append(el);
-  const jp = $('.jp', el), tick = () => { Jackpot.add(Math.random() * .9); jp.textContent = fmt2(Jackpot.v); };
-  tick(); const iv = setInterval(tick, 120);
-  return () => clearInterval(iv);
+  if (cat) scrollTo(0, 0);
 }
 
 function cashier() {
@@ -272,16 +299,19 @@ function cashier() {
 }
 
 // ---------- router ----------
+// '' = lobby, 'c/<slug>' = a lobby category, anything else = a game id
 let cleanup = null;
 function route() {
   cleanup?.(); cleanup = null; Casino.hotkey = null;
-  Casino.cur = location.hash.slice(1) || 'lobby'; Stats.visit(Casino.cur);
+  const hash = location.hash.slice(1);
+  if (hash === 'slots') return location.replace('#c/slots');
+  const g = Casino.games.find(g => g.id === hash);
+  Casino.cur = g ? g.id : 'lobby'; Stats.visit(Casino.cur);
   const view = $('#view'); view.innerHTML = ''; scrollTo(0, 0);
-  const g = Casino.games.find(g => g.id === location.hash.slice(1));
   document.title = g ? `${g.name} · Neon Royale` : 'Neon Royale Casino';
-  if (!g) { cleanup = home(view); return; }
+  if (!g) return home(view, hash.startsWith('c/') ? hash.slice(2) : '');
   const el = h(`<section class="game ${g.id}">
-    <div class="gbar"><a href="#${g.back || ''}" class="back">← ${g.back ? 'Slot Hall' : 'Lobby'}</a><h1>${g.name}</h1><button class="btn ghost small">Rules</button></div>
+    <div class="gbar"><a href="#${g.back ? 'c/' + g.back : ''}" class="back">← ${g.back ? 'Slots' : 'Lobby'}</a><h1>${g.name}</h1><button class="btn ghost small">Rules</button></div>
     <div class="table"></div><div class="controls"></div></section>`);
   $('.gbar .btn', el).onclick = () => modal(g.name, g.rules);
   view.append(el);
