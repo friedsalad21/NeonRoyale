@@ -296,6 +296,8 @@ Casino.start = () => {
   addEventListener('keydown', e => {
     if ((e.code === 'Space' || e.code === 'Enter') && Casino.hotkey && !e.target.closest('button,input,a,select')) { e.preventDefault(); Casino.hotkey(); }
   });
+  // keep the balance in step when the casino is open in more than one tab or window
+  addEventListener('storage', e => { if (e.key === 'neonroyale.bal' && e.newValue) { Casino.bal = +JSON.parse(e.newValue); $('#bal').textContent = fmt(Casino.bal); } });
   addEventListener('hashchange', route);
   addEventListener('pagehide', () => cleanup?.());
   route();
