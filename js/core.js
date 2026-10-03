@@ -230,7 +230,7 @@ function home(view) {
       <h1 class="title">NEON <em>ROYALE</em></h1>
       <p class="sub">Casino · Las Vegas · Open 24/7</p>
       <div class="jackpot"><span>Progressive Jackpot</span><b class="jp"></b></div>
-      <div class="perks"><span>🎁 Free chips at the Cashier</span><span>🎰 Jackpot grows with every spin</span><span>🃏 ${Casino.games.length} games</span></div>
+      <div class="perks"><span>🎁 Free chips at the Cashier</span><span>🎰 Jackpot grows with every spin</span><span>🃏 ${Casino.games.filter(g => !g.hall).length - 1} table games + ${SlotEngine.MACHINES.length} slots</span></div>
     </div>
     <h2 class="section">Choose your game</h2>
     <div class="grid"></div>
@@ -244,7 +244,7 @@ function home(view) {
   for (const [x, y] of pts) { const b = h('<i class="bulb"></i>'); b.style.left = x + '%'; b.style.top = y + '%'; bulbs.append(b); }
 
   const grid = $('.grid', el);
-  for (const g of Casino.games) {
+  for (const g of Casino.games.filter(g => !g.hall)) {
     const c = h(`<a class="gcard" href="#${g.id}" style="--a:${g.accent}"><span class="tag">${g.tag}</span><div class="art"></div><span class="play">Play</span><div class="info"><h3>${g.name}</h3><p>${g.blurb}</p></div></a>`);
     const art = $('.art', c); g.art ? art.append(g.art()) : art.append(h(`<span>${g.icon}</span>`));
     grid.append(c);
@@ -272,7 +272,7 @@ function route() {
   document.title = g ? `${g.name} · Neon Royale` : 'Neon Royale Casino';
   if (!g) { cleanup = home(view); return; }
   const el = h(`<section class="game ${g.id}">
-    <div class="gbar"><a href="#" class="back">← Lobby</a><h1>${g.name}</h1><button class="btn ghost small">Rules</button></div>
+    <div class="gbar"><a href="#${g.back || ''}" class="back">← ${g.back ? 'Slot Hall' : 'Lobby'}</a><h1>${g.name}</h1><button class="btn ghost small">Rules</button></div>
     <div class="table"></div><div class="controls"></div></section>`);
   $('.gbar .btn', el).onclick = () => modal(g.name, g.rules);
   view.append(el);
