@@ -186,7 +186,7 @@
   });
 
   M.push({
-    id: 'pearl', k: 1.2392, name: 'Pearl of the Deep', cat: 'Hold & Win', tag: 'Hold & Win · 4 jackpots', art: '🔮🐢🔱',
+    id: 'pearl', k: 1.2392, name: 'Pearl of the Deep', cat: 'Hold & Win', tag: 'Hold & Win · 4 jackpots', art: '🦪🐢🔱',
     blurb: 'Land 6 pearls to lock them for respins. Fill the screen for the GRAND.',
     theme: { bg: 'linear-gradient(#0e7490,#083344 60%,#021014)', frame: '#67e8f9', acc: '#f0abfc', font: 'Cinzel', cell: 'linear-gradient(#0c4a6e,#082f49)' },
     cols: 5, rows: 3, eval: 'lines', lines: L10, div: 10,
@@ -195,10 +195,10 @@
       ...ranks([16, 16, 16, 17, 17], [P5(5, 15, 50), P5(5, 15, 50), P5(4, 12, 40), P5(4, 12, 40), P5(4, 12, 40)], ['#a5f3fc', '#67e8f9', '#5eead4', '#99f6e4', '#bae6fd']),
       { s: '🐚', w: 9, pay: P5(10, 30, 100) }, { s: '🦀', w: 8, pay: P5(10, 40, 125) }, { s: '🐙', w: 6, pay: P5(15, 50, 200) },
       { s: '🐢', w: 4, pay: P5(25, 100, 500) }, { s: '🔱', wild: true, w: 2.5, reels: [1, 2, 3, 4], pay: P5(50, 200, 1000) },
-      { s: '🔮', coin: true, w: 15, val: vals([[1, 30], [2, 25], [3, 15], [5, 10], [8, 6], [10, 4], [15, 2], [20, 2], [50, .7], [200, .15]]), valFmt: '$', labels: { 20: 'MINI', 50: 'MINOR', 200: 'MAJOR' } },
+      { s: '🦪', coin: true, w: 15, val: vals([[1, 30], [2, 25], [3, 15], [5, 10], [8, 6], [10, 4], [15, 2], [20, 2], [50, .7], [200, .15]]), valFmt: '$', labels: { 20: 'MINI', 50: 'MINOR', 200: 'MAJOR' } },
       { s: '', blank: true, w: 0 },
     ],
-    rules: ['10 lines. 🔱 is wild.', '🔮 pearls carry cash values or the MINI, MINOR and MAJOR jackpots. Land <b>6 or more</b> to start <b>Hold & Win</b>.', 'Pearls lock in place and you get 3 respins. Each new pearl resets them to 3.', 'Fill all 15 spots to win the <b>GRAND</b> (2000× bet) on top.'],
+    rules: ['10 lines. 🔱 is wild.', '🦪 pearls carry cash values or the MINI, MINOR and MAJOR jackpots. Land <b>6 or more</b> to start <b>Hold & Win</b>.', 'Pearls lock in place and you get 3 respins. Each new pearl resets them to 3.', 'Fill all 15 spots to win the <b>GRAND</b> (2000× bet) on top.'],
   });
 
   M.push({

@@ -315,6 +315,7 @@
     const H = m.holdwin, S = m.syms, C = g.length, R = g[0].length, coin = S.findIndex(d => d.coin);
     const locked = new Map();
     cellsOf(g, s => S[s].coin).forEach(k => { const [c, r] = kc(k); locked.set(k, vals[c][r]); });
+    cellsOf(g, s => !S[s].coin).forEach(k => { const [c, r] = kc(k); g[c][r] = H.blank; vals[c][r] = 0; }); // clear the board around the pearls
     let respins = 3;
     await B.banner('HOLD & WIN', `${locked.size} locked · 3 respins`);
     await B.hw(locked, respins);

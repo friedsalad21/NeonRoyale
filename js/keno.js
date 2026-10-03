@@ -16,7 +16,7 @@
       <li>The paytable shows what each catch pays for your number of picks, as "X for 1" (your bet included).</li>
       <li>Your picks stay for the next draw. Space draws.</li></ul>`,
     mount({ table, controls }) {
-      table.innerHTML = `<div class="keno">
+      table.innerHTML = `<div class="keno-board">
         <div class="kboard">${Array.from({ length: 80 }, (_, i) => `<button data-n="${i + 1}">${i + 1}</button>`).join('')}</div>
         <div class="kside">
           <div class="kstat">Picked <span class="np">0</span>/10 · Caught <span class="nc">0</span></div>

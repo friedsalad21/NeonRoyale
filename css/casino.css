@@ -255,8 +255,8 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:24px 16px 32p
 @keyframes tumble{50%{transform:rotate(25deg) translateY(-8px)}}
 
 /* ---------- keno ---------- */
-.keno{display:grid;grid-template-columns:1fr 260px;gap:18px}
-@media(max-width:800px){.keno{grid-template-columns:1fr}}
+.keno-board{display:grid;grid-template-columns:1fr 260px;gap:18px}
+@media(max-width:800px){.keno-board{grid-template-columns:1fr}}
 .kboard{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
 .kboard button{aspect-ratio:1;border:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#d8d2c4);color:#222;font-weight:600;font-size:clamp(11px,2.4vw,16px);cursor:pointer;padding:0;transition:transform .1s}
 .kboard button:hover{transform:scale(1.08)}
@@ -363,3 +363,16 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:24px 16px 32p
 .game.machine .gbar h1{visibility:hidden}
 .sl-main{max-width:420px;width:100%;margin:0 auto}.sl-c,.sl-reel div{font-size:clamp(14px,3.6vw,22px)}
 .logo{min-width:0;overflow:hidden;text-overflow:clip}@media(max-width:480px){.logo{font-size:16px}#mute{padding:2px}}
+/* ---------- plinko ---------- */
+.game.plinko .table{background:radial-gradient(ellipse at 50% 0,#3b0a2a,#12030d 70%);border-color:#2a0a1e}
+.plk{max-width:760px;margin:0 auto}
+.plk canvas{width:100%;display:block}
+.plk-hist{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;min-height:24px;margin-top:8px}
+.plk-hist span{font:700 12px Oswald,sans-serif;color:#1a0610;padding:3px 7px;border-radius:6px}
+.plk-opt{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.plk-opt small{color:var(--muted);letter-spacing:.15em;text-transform:uppercase;font-size:11px;margin-right:2px}
+/* hold & win respins */
+.cell.reroll{animation:reroll .14s infinite}
+@keyframes reroll{50%{filter:blur(3px);transform:translateY(10%);opacity:.6}}
+.cell.land{animation:land .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes land{from{transform:scale(1.8);opacity:0}}

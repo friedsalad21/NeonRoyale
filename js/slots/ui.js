@@ -76,13 +76,12 @@
     async respinCells(g, vals, held) {
       this.locked = held;
       const cells = []; g.forEach((col, c) => col.forEach((_, r) => { if (!held.has(E.key(c, r))) cells.push([c, r]); }));
-      const coin = this.m.syms.findIndex(d => d.coin), H = this.height(g);
-      for (let i = 0; i < 7; i++) {
-        for (const [c, r] of cells) { const el = this.q(E.key(c, r)); if (el) el.outerHTML = this.cellHTML(c, r, Math.random() < .3 ? coin : this.m.holdwin.blank, 0, H / g[c].length); }
-        sfx.tick(); await this.wait(70);
-      }
+      const coin = this.m.syms.findIndex(d => d.coin);
+      // open spots shimmer while the locked pearls stay put, then new pearls drop in
+      cells.forEach(([c, r]) => this.q(E.key(c, r))?.classList.add('reroll'));
+      for (let i = 0; i < 5; i++) { sfx.tick(); await this.wait(130); }
       this.render(g, vals);
-      cells.forEach(([c, r]) => { if (g[c][r] === coin) this.q(E.key(c, r))?.classList.add('morph'); });
+      cells.forEach(([c, r]) => { if (g[c][r] === coin) this.q(E.key(c, r))?.classList.add('land'); });
       if (cells.some(([c, r]) => g[c][r] === coin)) sfx.win();
       await this.wait(500);
     }
@@ -150,6 +149,7 @@
     async hw(locked, respins) {
       this.locked = locked ? new Set(locked.keys()) : null;
       if (!locked) { this.ui.hud(null); this.render(this.g, this.v); return; }
+      this.g.forEach((col, c) => col.forEach((_, r) => { if (!locked.has(E.key(c, r))) { col[r] = this.m.holdwin.blank; if (this.v) this.v[c][r] = 0; } }));
       let sum = 0; locked.forEach(v => sum += v);
       this.ui.hud(`RESPINS ${'●'.repeat(respins)}${'○'.repeat(3 - respins)} · ${this.ui.money(sum * this.m.k)}`);
       this.render(this.g, this.v);
@@ -330,6 +330,10 @@
       const x = paid / bet;
       if (!ctx.jackpot && x >= 15) { banner(x >= 100 ? 'EPIC WIN' : x >= 50 ? 'MEGA WIN' : 'BIG WIN', fmt(paid)); sfx.big(); coinShower(x >= 100 ? 120 : x >= 50 ? 70 : 35); }
       else if (paid > 0) { sfx.win(); if (!buy) ui.status(`WIN ${fmt(paid)}`, true); }
+      else if (m.holdwin && board.g) {
+        const n = board.g.flat().filter(s => m.syms[s].coin).length;
+        ui.status(n >= 3 ? `${n} pearls · land ${m.holdwin.need} for Hold & Win!` : 'No win. Spin again!');
+      }
       else if (!st.holdNext) ui.status(m.mode === 'slingo' ? 'No prize this time. Play again!' : 'No win. Spin again!');
       ui.lastPaid = paid;
       if (gambleBtn && paid > 0 && !ui.auto) gambleBtn.hidden = false;
