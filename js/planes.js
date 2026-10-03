@@ -58,7 +58,7 @@
       }
       function click(p) {
         if (p.state === 'idle') { p.stake = p.bet.get(); if (!Casino.take(p.stake)) return; p.state = 'placed'; sfx.chip(); }
-        else if (p.state === 'placed') { Casino.pay(p.stake); p.state = 'idle'; }
+        else if (p.state === 'placed') { Casino.refund(p.stake); p.state = 'idle'; }
         else if (p.state === 'in') cashout(p, m);
         label(p);
       }
@@ -138,7 +138,7 @@
       Casino.hotkey = () => click(panels[0]);
       return () => {
         alive = false; cancelAnimationFrame(raf); removeEventListener('resize', resize);
-        panels.forEach(p => { if (p.state === 'placed') Casino.pay(p.stake); if (p.state === 'in') cashout(p, m); });
+        panels.forEach(p => { if (p.state === 'placed') Casino.refund(p.stake); if (p.state === 'in') cashout(p, m); });
       };
     },
   });

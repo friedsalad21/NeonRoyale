@@ -178,7 +178,7 @@
       async function step(pullBack) {
         if (phase !== 'act') return;
         phase = 'busy'; ui();
-        if (pullBack) { live--; Casino.pay(unit); $(`.b${stage + 1} .circle`, table).innerHTML = ''; sfx.chip(); }
+        if (pullBack) { live--; Casino.refund(unit); $(`.b${stage + 1} .circle`, table).innerHTML = ''; sfx.chip(); }
         reveal(bEls[stage]); await sleep(400); stage++;
         if (stage < 2) { phase = 'act'; ui(); return; }
         const s = P.eval5([...pc, ...bc]), cat = s[0], ok = cat >= 2 || (cat === 1 && s[1] >= 10);

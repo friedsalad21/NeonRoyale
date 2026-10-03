@@ -56,9 +56,11 @@ const Casino = {
   take(n) {
     n = round2(n);
     if (n > this.bal + 1e-9) { toast('Not enough chips. Visit the Cashier.', 'bad'); sfx.no(); return false; }
-    this.setBal(this.bal - n); return true;
+    this.setBal(this.bal - n); Stats.bet(n); return true;
   },
-  pay(n) { if (n > 0) this.setBal(this.bal + n); },
+  pay(n) { if (n > 0) { this.setBal(this.bal + n); Stats.win(n); } },
+  // money handed back before it was played (chips taken off the table, cancelled bets): not a wager, not a win
+  refund(n) { if (n > 0) { this.setBal(this.bal + n); Stats.unbet(n); } },
 };
 
 const JP_SEED = 250000;
@@ -142,11 +144,11 @@ class Bets {
   }
   remove(key) {
     if (this.locked || !this.m[key] || !this.canRemove(key)) return;
-    Casino.pay(this.m[key]); delete this.m[key]; sfx.chip(); this.render();
+    Casino.refund(this.m[key]); delete this.m[key]; sfx.chip(); this.render();
   }
   clear() {
     if (this.locked) return;
-    for (const k of Object.keys(this.m)) if (this.canRemove(k)) { Casino.pay(this.m[k]); delete this.m[k]; }
+    for (const k of Object.keys(this.m)) if (this.canRemove(k)) { Casino.refund(this.m[k]); delete this.m[k]; }
     this.render();
   }
   save() { if (this.total) this.last = { ...this.m }; }
@@ -266,13 +268,14 @@ function cashier() {
     <p>Running low? The house will top you back up to <b class="gold">${fmt(START)}</b>, on us. Every chip here is play money.</p>
     <button class="btn green">Top up to ${fmt(START)}</button>`);
   const b = $('.btn', m); b.disabled = Casino.bal >= START;
-  b.onclick = () => { Casino.setBal(START); sfx.win(); m.remove(); toast('Chips topped up. Good luck!'); };
+  b.onclick = () => { Stats.topup(START - Casino.bal); Casino.setBal(START); sfx.win(); m.remove(); toast('Chips topped up. Good luck!'); };
 }
 
 // ---------- router ----------
 let cleanup = null;
 function route() {
   cleanup?.(); cleanup = null; Casino.hotkey = null;
+  Casino.cur = location.hash.slice(1) || 'lobby'; Stats.visit(Casino.cur);
   const view = $('#view'); view.innerHTML = ''; scrollTo(0, 0);
   const g = Casino.games.find(g => g.id === location.hash.slice(1));
   document.title = g ? `${g.name} · Neon Royale` : 'Neon Royale Casino';
