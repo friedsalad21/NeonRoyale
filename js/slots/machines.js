@@ -233,7 +233,7 @@
   });
 
   M.push({
-    id: 'pirate', k: 1.7537, name: "Pirate's Plunder", cat: 'Bonus', tag: 'Pick-a-chest bonus', art: '🗺️☠️🦜',
+    id: 'pirate', k: 1.6801, name: "Pirate's Plunder", cat: 'Bonus', tag: 'Pick-a-chest bonus', art: '🗺️☠️🦜',
     blurb: 'Find the map, then crack open treasure chests until you hit COLLECT.',
     theme: { bg: 'linear-gradient(#5b3a1e,#2a1a0d 60%,#120a04)', frame: '#d4a373', acc: '#fbbf24', font: 'Pirata One', cell: 'linear-gradient(#f5e6c8,#e3cc9c)' },
     cols: 5, rows: 3, eval: 'lines', lines: L20, div: 20,

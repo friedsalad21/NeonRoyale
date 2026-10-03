@@ -342,7 +342,7 @@
     if (b.type === 'wheel') {
       const i = ri(b.segs.length); await B.wheel(b.segs, i); u = b.segs[i] * m.k;
     } else if (b.type === 'pick') {
-      const got = await B.pick(shuffle([...b.prizes]));
+      const got = await B.pick(shuffle([...b.prizes])); // the first chest is never COLLECT
       let t = 0, x = 1; for (const p of got) { if (p === 'x2') x *= 2; else if (typeof p === 'number') t += p; }
       u = t * x * m.k;
     } else if (b.type === 'pachinko') {
@@ -460,7 +460,7 @@
 
   // Board stand-in for the simulator: every animation resolves instantly; choices are random.
   const stub = new Proxy({}, {
-    get: (_, p) => p === 'pick' ? async prizes => { const out = []; for (const x of prizes) { out.push(x); if (x === 'COLLECT') break; } return out; }
+    get: (_, p) => p === 'pick' ? async prizes => { const out = []; if (prizes[0] === 'COLLECT') { const j = prizes.findIndex(x => x !== 'COLLECT'); [prizes[0], prizes[j]] = [prizes[j], prizes[0]]; } for (const x of prizes) { out.push(x); if (x === 'COLLECT') break; } return out; }
       : p === 'askNudge' ? async n => n ? ri(3) : -1
       : async () => {},
   });

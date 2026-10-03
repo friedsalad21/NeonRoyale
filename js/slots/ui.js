@@ -12,7 +12,7 @@
     constructor(m, ui) {
       this.m = m; this.ui = ui; this.el = h('<div class="reels"></div>');
       this.g = null; this.v = null; this.spots = null; this.sticky = null; this.locked = null;
-      this.pool = c => m.syms.map((d, i) => [i, (d.reels && !d.reels.includes(c)) ? 0 : d.w || d.fw || 0]).filter(x => x[1] > 0);
+      this.pool = c => m.syms.map((d, i) => [i, (d.reels && !d.reels.includes(c)) ? 0 : d.w || d.fw || d.n || 0]).filter(x => x[1] > 0);
     }
     wait(ms) { return sleep(this.ui.turbo ? ms * .35 : ms); }
     randSym(c) { const p = this.pool(c); let r = Math.random() * p.reduce((a, x) => a + x[1], 0); for (const [i, w] of p) if ((r -= w) < 0) return i; return p[0][0]; }
@@ -22,14 +22,14 @@
     }
     height(g) {
       const cols = g.length, W = this.el.clientWidth || Math.min(innerWidth - 64, 900), gap = 6;
-      const cs = Math.min(cols > 5 ? 86 : 118, Math.floor((W - gap * (cols - 1)) / cols));
+      const cs = this.cs = Math.min(cols > 5 ? 86 : 118, Math.floor((W - gap * (cols - 1)) / cols));
       return Math.round(this.m.megaways ? cs * 4.4 : cs * Math.max(...g.map(c => c.length)));
     }
     q(k) { return this.el.querySelector(`.cell[data-k="${k}"]`); }
     cellHTML(c, r, s, v, hgt) {
       const d = this.m.syms[s], k = E.key(c, r), spot = r >= 0 && this.spots?.get(k);
       const cls = ['cell', d.cls || '', d.wild ? 'wild' : '', d.scatter || d.bonus || d.coin ? 'scat' : '', r >= 0 && this.sticky?.has(k) ? 'sticky' : '', r >= 0 && this.locked?.has(k) ? 'locked' : ''].join(' ');
-      return `<div class="${cls}" data-k="${r >= 0 ? k : ''}" style="height:${hgt}px;font-size:${Math.round(hgt * .56)}px;${d.c ? `color:${d.c}` : ''}">${symPlain(d)}${v ? `<b class="val">${this.ui.valLabel(d, v)}</b>` : ''}${spot ? `<i class="spotm ${spot > 1 ? 'hot' : ''}">${spot > 1 ? '×' + spot : ''}</i>` : ''}</div>`;
+      return `<div class="${cls}" data-k="${r >= 0 ? k : ''}" style="height:${hgt}px;font-size:${Math.round(Math.min(hgt, this.cs || hgt) * .56)}px;${d.c ? `color:${d.c}` : ''}">${symPlain(d)}${v ? `<b class="val">${this.ui.valLabel(d, v)}</b>` : ''}${spot ? `<i class="spotm ${spot > 1 ? 'hot' : ''}">${spot > 1 ? '×' + spot : ''}</i>` : ''}</div>`;
     }
     build(n) {
       this.el.innerHTML = ''; this.el.style.gridTemplateColumns = `repeat(${n},1fr)`;
@@ -175,7 +175,7 @@
   class Slingo {
     constructor(m, ui) {
       this.m = m; this.ui = ui;
-      this.el = h(`<div class="slingo"><div class="sl-main"><div class="sl-reel">${'<div>?</div>'.repeat(5)}</div><div class="sl-card"></div><div class="sl-spins"></div></div><div class="sl-ladder"></div></div>`);
+      this.el = h(`<div class="slingo-board"><div class="sl-main"><div class="sl-reel">${'<div>?</div>'.repeat(5)}</div><div class="sl-card"></div><div class="sl-spins"></div></div><div class="sl-ladder"></div></div>`);
       this.renderLadder(0);
     }
     initial() { $('.sl-card', this.el).innerHTML = Array.from({ length: 25 }, () => '<div class="sl-c">·</div>').join(''); }
@@ -379,6 +379,7 @@
       const lab = p => p === 'COLLECT' ? 'COLLECT' : p === 'x2' ? '×2' : '$' + short(round2(p * m.k * BETS[bi]));
       const open = async i => {
         if (over || chests[i].classList.contains('open')) return;
+        if (!got.length && prizes[i] === 'COLLECT') { const j = prizes.findIndex(x => x !== 'COLLECT'); [prizes[i], prizes[j]] = [prizes[j], prizes[i]]; }
         const p = prizes[i]; got.push(p);
         chests[i].textContent = lab(p); chests[i].classList.add('open'); if (p === 'COLLECT') chests[i].classList.add('col');
         if (p === 'x2') x *= 2; else if (typeof p === 'number') tot += p;
@@ -402,8 +403,8 @@
         slots.forEach((v, j) => {
           const x = cx + (j - rows / 2) * dx, y = top + (rows + 1) * dy + 6;
           ctx.fillStyle = done.includes(j) ? '#facc15' : v >= 25 ? '#be123c' : '#1e3a8a'; ctx.fillRect(x - 16, y - 14, 32, 40);
-          ctx.fillStyle = '#fff'; ctx.font = 'bold 11px Oswald, sans-serif'; ctx.textAlign = 'center';
-          ctx.fillText('$' + short(round2(v * m.k * BETS[bi])), x, y + 10);
+          ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Oswald, sans-serif'; ctx.textAlign = 'center';
+          ctx.fillText('$' + short(Math.round(v * m.k * BETS[bi])), x, y + 10);
         });
         if (ball) { ctx.beginPath(); ctx.arc(ball[0], ball[1], 8, 0, 7); ctx.fillStyle = '#fff'; ctx.shadowColor = '#fff'; ctx.shadowBlur = 12; ctx.fill(); ctx.shadowBlur = 0; }
       };

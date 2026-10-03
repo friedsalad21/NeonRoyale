@@ -349,8 +349,8 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:24px 16px 32p
 .ptab .prow{display:flex;gap:10px;align-items:center;padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.12);font-size:14px}
 .psym{min-width:44px;text-align:center;font-size:24px}.psym .bars b{font-size:9px}
 .muted{color:var(--muted);font-size:13px}
-.slingo{display:grid;grid-template-columns:1fr 200px;gap:14px}
-@media(max-width:640px){.slingo{grid-template-columns:1fr}}
+.slingo-board{display:grid;grid-template-columns:1fr 200px;gap:14px}
+@media(max-width:640px){.slingo-board{grid-template-columns:1fr}}
 .sl-reel,.sl-card{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .sl-reel div{aspect-ratio:1.4;display:grid;place-items:center;background:var(--frame);color:#111;border-radius:10px;font:clamp(16px,4vw,26px) var(--mf)}
 .sl-reel .roll{filter:blur(1px)}.sl-reel .special{background:var(--acc);color:#fff}.sl-reel .match{box-shadow:0 0 16px #fff}
@@ -360,3 +360,6 @@ footer{text-align:center;color:var(--muted);font-size:13px;padding:24px 16px 32p
 .sl-spins{text-align:center;margin-top:8px;color:#fff}
 .sl-ladder div{display:flex;justify-content:space-between;padding:3px 8px;border-radius:6px;font-size:13px;color:rgba(255,255,255,.7)}
 .sl-ladder .on{background:var(--acc);color:#fff;font-weight:600}.sl-ladder .past{color:#fff}
+.game.machine .gbar h1{visibility:hidden}
+.sl-main{max-width:420px;width:100%;margin:0 auto}.sl-c,.sl-reel div{font-size:clamp(14px,3.6vw,22px)}
+.logo{min-width:0;overflow:hidden;text-overflow:clip}@media(max-width:480px){.logo{font-size:16px}#mute{padding:2px}}
