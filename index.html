@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Neon Royale Casino</title>
+<meta name="description" content="A Las Vegas style play-money casino: blackjack, roulette, slots, video poker, baccarat, craps, keno and the Big Six wheel.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎰</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Limelight&family=Oswald:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/casino.css">
+</head>
+<body>
+<header id="top">
+  <a href="#" class="logo">NEON <span>ROYALE</span></a>
+  <div class="right">
+    <button id="mute" title="Sound on/off"></button>
+    <div class="bal">💰 <b id="bal">$0</b></div>
+    <button id="cashier" class="btn small">Cashier</button>
+  </div>
+</header>
+<main id="view"></main>
+<div id="toast"></div>
+<footer>Play money only. No real money is wagered or won. Neon Royale is a fictional casino.</footer>
+<script src="js/core.js"></script>
+<script src="js/blackjack.js"></script>
+<script src="js/roulette.js"></script>
+<script src="js/slots.js"></script>
+<script src="js/videopoker.js"></script>
+<script src="js/baccarat.js"></script>
+<script src="js/craps.js"></script>
+<script src="js/keno.js"></script>
+<script src="js/bigsix.js"></script>
+<script>Casino.start();</script>
+</body>
+</html>
